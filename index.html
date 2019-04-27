@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<style>
+
+header {
+  width:300px;
+  float:left;
+  background: cyan;
+  height: 20px;
+  text-indent: 0cm;
+}
+
+.first-box {
+  width:300px;
+  float:left;
+  background: cyan;
+  height: 200px;
+  margin: 10px
+}
+
+.first-box p {
+  color: #ffffff;
+  padding-left: 80px;
+  padding-top: 50px;
+}
+</style>
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+precision mediump float;
+attribute  vec4 vPosition;
+attribute  vec4 vColor;
+attribute vec3 vNormal;
+varying vec4 fColor;
+attribute vec2 vTexCoord;
+
+varying vec2 fTexCoord;
+uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+
+varying vec3 N,L,E;
+uniform vec4 lightPosition;
+uniform float shininess;
+uniform vec3 thetha;
+
+uniform bool changeShading;
+
+uniform mat4 modelViewMatrix;
+uniform mat4 reverseMVModel;
+uniform mat4 transMVModel;
+uniform mat4 projectionMatrix;
+
+void main()
+    {
+    vec3 pos = (modelViewMatrix * vPosition).xyz;
+    fTexCoord=vTexCoord;
+
+    if(changeShading) {
+        vec3 light = (modelViewMatrix*lightPosition).xyz;
+        L = normalize( light - pos );
+        E = normalize( pos );
+        vec4 NN = vec4(vNormal ,0);
+        N = normalize( (NN).xyz);
+        vec3 H = normalize( L + E );
+        vec4 ambient = ambientProduct;
+
+        float Kd = max( dot(L, N), 0.0 );
+        vec4  diffuse = Kd*diffuseProduct;
+        float Ks = pow( max(dot(N, H), 0.0), shininess );
+        vec4  specular = Ks * specularProduct;
+        if( dot(L, N) < 0.0 )  specular = vec4(0.0, 0.0, 0.0, 1.0);
+
+        fColor = ambient + diffuse + specular;
+        fColor.a = 1.0;
+
+        gl_Position = projectionMatrix*modelViewMatrix*vPosition;
+    }
+    else{
+      	fColor=vColor;
+        vec3 light = (modelViewMatrix*lightPosition).xyz;
+        L = normalize( light - pos );
+        E = normalize( pos );
+        vec4 NN = vec4(vNormal ,0);
+        N = normalize( (NN).xyz);
+        vec3 H = normalize( L + E );
+        gl_Position = projectionMatrix*modelViewMatrix*vPosition;
+    }
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+    varying  vec4 vPosition;
+
+    varying vec4 fColor;
+		varying vec2 fTexCoord;
+
+		uniform sampler2D texture;
+		uniform sampler2D Text0;
+		uniform sampler2D Text1;
+
+    uniform mat4 modelView;
+
+    varying vec4 vNormal;
+    uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+    uniform vec4 lightPosition;
+    uniform float shininess;
+    varying vec3 N,L,E;
+    uniform bool changeShading;
+
+    void main(){
+    	gl_FragColor = fColor*(texture2D(Text1,fTexCoord)*texture2D(Text0,fTexCoord));
+        if(changeShading) {
+       }
+        else {vec4 fColor;
+            vec3 H = normalize( L + E );
+            vec4 ambient = ambientProduct;
+            float Kd = max( dot(L, N), 0.0 );
+            vec4 diffuse = Kd*diffuseProduct;
+            float Ks = pow( max(dot(N, H), 0.0), shininess );
+            vec4 specular = Ks * specularProduct;
+            if( dot(L, N) < 0.0 ) specular = vec4(0.0, 0.0, 0.0, 1.0);
+            fColor = ambient + diffuse +specular;
+            fColor.a = 1.0;
+            gl_FragColor = fColor*(texture2D(Text0,fTexCoord)*texture2D(Text1,fTexCoord));
+            }
+        }
+</script>
+
+<script type="text/javascript" src="Common/webgl-utils.js"></script>
+<script type="text/javascript" src="Common/initShaders.js"></script>
+<script type="text/javascript" src="Common/MV.js"></script>
+<script type="text/javascript" src="homework1.js"></script>
+
+<body>
+<canvas id="gl-canvas" >
+Oops ... your browser doesn't support the HTML5 canvas element
+
+</canvas>
+
+
+
+
+
+<div class="container">
+<div class="first-box">
+Near .01
+<input id="NearSlider" type="range"
+min="0.01" max="20" step="0.3" value ="1" />
+20
+<div>
+Far 0
+<input id="FarSlider" type="range"
+min="0" max="30" step="0.1" value ="30" />
+10
+</div>
+<div>
+radius .005
+<input id="radiusSlider" type="range"
+min="0.005" max="10" step="0.01" value ="5" />
+10
+</div>
+<div>
+theta
+<input id="thetaSlider" type="range"
+min="0" max="720" step="1" value ="360" />
+
+</div>
+<div>
+phi
+<input id="phiSlider" type="range"
+min="0" max="720" step="0.01" value ="0" />
+
+</div>
+<div>
+fov 10
+<input id="fovSlider" type="range"
+min="10" max="100" step="0.01" value ="40" />
+120
+</div>
+<div>
+aspect .05
+<input id="aspectSlider" type="range"
+min="0.05" max="2" step="0.01" value ="1" />
+2
+</div>
+</div>
+<div class="first-box">
+<div>
+Scale
+<input id="scaleSlider" type="range"
+min="0.01" max="2" step="0.01" value ="1" />
+
+</div>
+
+<div>
+X Translation
+<input id="XSlider" type="range"
+min="-1" max="1" step="0.01" value ="0" />
+
+</div>
+
+
+<div>
+Y Translation
+<input id="YSlider" type="range"
+min="-1" max="1" step="0.01" value ="0" />
+
+</div>
+
+<div>
+Z Translation
+<input id="ZSlider" type="range"
+min="-1" max="1" step="0.01" value ="0" />
+
+</div>
+
+<div>
+Gouraud/Phong Switch
+<input type="button" value="SWITCH" id="ShadingButton">
+
+</div>
+</div>
+<div class="first-box">
+  <div>
+  Click to reset all values
+  <input type="button" value="RESET" onclick="resetButton()">
+  </div>
+  </div>
+</div>
+</body>
+</html>
