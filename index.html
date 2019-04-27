@@ -33,7 +33,7 @@ attribute vec3 vNormal;
 varying vec4 fColor;
 attribute vec2 vTexCoord;
 
-varying vec2 fTexCoord;
+varying vec2 fTextCoordindate;
 uniform vec4 ambientProduct, diffuseProduct, specularProduct;
 
 varying vec3 N,L,E;
@@ -41,22 +41,22 @@ uniform vec4 lightPosition;
 uniform float shininess;
 uniform vec3 thetha;
 
-uniform bool changeShading;
+uniform bool PhongGourandShadingModelChange;
 
 uniform mat4 modelViewMatrix;
-uniform mat4 reverseMVModel;
-uniform mat4 transMVModel;
+uniform mat4 reverseMatrixModel;
+uniform mat4 translationMatrixModel;
 uniform mat4 projectionMatrix;
 
 void main()
     {
-    vec3 pos = (modelViewMatrix * vPosition).xyz;
-    fTexCoord=vTexCoord;
+    vec3 position = (modelViewMatrix * vPosition).xyz;
+    fTextCoordindate=vTexCoord;
 
-    if(changeShading) {
+    if(PhongGourandShadingModelChange) {
         vec3 light = (modelViewMatrix*lightPosition).xyz;
-        L = normalize( light - pos );
-        E = normalize( pos );
+        L = normalize( light - position );
+        E = normalize( position );
         vec4 NN = vec4(vNormal ,0);
         N = normalize( (NN).xyz);
         vec3 H = normalize( L + E );
@@ -70,14 +70,13 @@ void main()
 
         fColor = ambient + diffuse + specular;
         fColor.a = 1.0;
-
         gl_Position = projectionMatrix*modelViewMatrix*vPosition;
     }
     else{
       	fColor=vColor;
         vec3 light = (modelViewMatrix*lightPosition).xyz;
-        L = normalize( light - pos );
-        E = normalize( pos );
+        L = normalize( light - position );
+        E = normalize( position );
         vec4 NN = vec4(vNormal ,0);
         N = normalize( (NN).xyz);
         vec3 H = normalize( L + E );
@@ -91,7 +90,7 @@ void main()
     varying  vec4 vPosition;
 
     varying vec4 fColor;
-		varying vec2 fTexCoord;
+		varying vec2 fTextCoordindate;
 
 		uniform sampler2D texture;
 		uniform sampler2D Text0;
@@ -104,11 +103,11 @@ void main()
     uniform vec4 lightPosition;
     uniform float shininess;
     varying vec3 N,L,E;
-    uniform bool changeShading;
+    uniform bool PhongGourandShadingModelChange;
 
     void main(){
-    	gl_FragColor = fColor*(texture2D(Text1,fTexCoord)*texture2D(Text0,fTexCoord));
-        if(changeShading) {
+    	gl_FragColor = fColor*(texture2D(Text1,fTextCoordindate)*texture2D(Text0,fTextCoordindate));
+        if(PhongGourandShadingModelChange) {
        }
         else {vec4 fColor;
             vec3 H = normalize( L + E );
@@ -120,7 +119,7 @@ void main()
             if( dot(L, N) < 0.0 ) specular = vec4(0.0, 0.0, 0.0, 1.0);
             fColor = ambient + diffuse +specular;
             fColor.a = 1.0;
-            gl_FragColor = fColor*(texture2D(Text0,fTexCoord)*texture2D(Text1,fTexCoord));
+            gl_FragColor = fColor*(texture2D(Text0,fTextCoordindate)*texture2D(Text1,fTextCoordindate));
             }
         }
 </script>
@@ -181,39 +180,27 @@ min="0.05" max="2" step="0.01" value ="1" />
 2
 </div>
 </div>
+
 <div class="first-box">
-<div>
-Scale
+<div>Scale
 <input id="scaleSlider" type="range"
-min="0.01" max="2" step="0.01" value ="1" />
+min="0.01" max="2" step="0.01" value ="1" /></div>
 
-</div>
-
-<div>
-X-Translation
+<div>X-Translation
 <input id="XSlider" type="range"
-min="-1" max="1" step="0.01" value ="0" />
+min="-1" max="1" step="0.01" value ="0" /></div>
 
-</div>
-
-
-<div>
-Y-Translation
+<div> Y-Translation
 <input id="YSlider" type="range"
-min="-1" max="1" step="0.01" value ="0" />
+min="-1" max="1" step="0.01" value ="0" /></div>
 
-</div>
-
-<div>
-Z-Translation
+<div>Z-Translation
 <input id="ZSlider" type="range"
-min="-1" max="1" step="0.01" value ="0" />
-
-</div>
+min="-1" max="1" step="0.01" value ="0" /></div>
 
 <div>
 Switch betwen shading models(Gouraud/Phong)
-<input type="button" value="SWITCH" id="ShadingButton">
+<input type="button" value="SWITCH" id="ShadingSwitchButton">
 
 </div>
 </div>

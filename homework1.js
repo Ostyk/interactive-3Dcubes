@@ -253,8 +253,8 @@ window.onload = function init() {
     y = document.getElementById("YSlider");
     z = document.getElementById("ZSlider");
 
-    document.getElementById("ShadingButton").onchange = function(event) {
-        changeShading = !changeShading;
+    document.getElementById("ShadingSwitchButton").onchange = function(event) {
+        PhongGourandShadingModelChange = !PhongGourandShadingModelChange;
     };
     render();
 
@@ -310,10 +310,10 @@ function ScreenRendering(drawX, drawY, drawWidth, drawHeight, projectionMatrix){
 
     let modelViewMatrixLoc= gl.getUniformLocation(program,"modelViewMatrix");
     let projectionMatrixLoc= gl.getUniformLocation(program,"projectionMatrix");
-    let reverseMVModel=inverse(modelViewMatrix);
-    let transMVModel=transpose(modelViewMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false,flatten(reverseMVModel));
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false,flatten(transMVModel));
+    let reverseMatrixModel=inverse(modelViewMatrix);
+    let translationMatrixModel=transpose(modelViewMatrix);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false,flatten(reverseMatrixModel));
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false,flatten(translationMatrixModel));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false,flatten(modelViewMatrix));
     gl.uniformMatrix4fv(projectionMatrixLoc, false,flatten(projectionMatrix));
 
